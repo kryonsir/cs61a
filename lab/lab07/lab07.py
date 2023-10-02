@@ -47,7 +47,7 @@ def inc_subseqs(s):
     """
     def subseq_helper(s, prev):
         if not s:
-            return ____________________
+            return [[]]
         elif s[0] < prev:
             return ____________________
         else:
@@ -113,6 +113,9 @@ def reverse(lst):
     [-8, 72, 42]
     """
     "*** YOUR CODE HERE ***"
+    temp = lst[::-1]
+    for i in range(len(temp)):
+        lst[i] = temp[i]
 
 
 cs61a = {
@@ -140,6 +143,16 @@ def make_glookup(class_assignments):
     0.8913043478260869
     """
     "*** YOUR CODE HERE ***"
+    temp = {}
+    def func(key,value):
+        nonlocal temp
+        a, b = 0, 0
+        temp[key] = value
+        for i in temp:
+            a += temp[i]
+            b += cs61a[i]
+        return a/b
+    return func
 
 
 def num_trees(n):
@@ -162,9 +175,9 @@ def num_trees(n):
     429
 
     """
-    if ____________________:
-        return _______________
-    return _______________
+    if n==1:
+        return 1
+    return (n-1)*(num_trees(n-1)-1 if n&(n-1)==0 and n>2 else num_trees(n-1))
 
 
 def make_advanced_counter_maker():
@@ -196,13 +209,25 @@ def make_advanced_counter_maker():
     >>> tom_counter('global-count')
     1
     """
-    ________________
-    def ____________(__________):
-        ________________
-        def ____________(__________):
-            ________________
+    global_count = 0
+    def make_counter():
+        count = 0
+        def counter(type):
+            nonlocal global_count,count
+            if type == 'global-count':
+                global_count += 1
+                return global_count
+            elif type == 'count':
+                count += 1
+                return count
+            elif type == 'reset':
+                count = 0
+                return 
+            elif type == 'global-reset':
+                global_count = 0
+                return 
             "*** YOUR CODE HERE ***"
             # as many lines as you want
-        ________________
-    ________________
+        return counter
+    return make_counter
 
