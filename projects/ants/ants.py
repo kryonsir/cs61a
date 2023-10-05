@@ -3,6 +3,7 @@
 import random
 from ucb import main, interact, trace
 from collections import OrderedDict
+import ants
 
 ################
 # Core Classes #
@@ -106,6 +107,7 @@ class Ant(Insect):
 
     implemented = False  # Only implemented Ant classes should be instantiated
     food_cost = 0
+    marked = 0
     blocks_path = True
     # ADD CLASS ATTRIBUTES HERE
 
@@ -139,6 +141,8 @@ class Ant(Insect):
         Insect.add_to(self, place)
 
     def remove_from(self, place):
+        if isinstance(self,QueenAnt) and self.number == 1:
+            return
         if place.ant is self:
             place.ant = None
         elif place.ant is None:
@@ -147,6 +151,16 @@ class Ant(Insect):
             # container or other situation
             place.ant.remove_ant(self)
         Insect.remove_from(self, place)
+
+    def action(self,gamestate):
+        self.action(gamestate)
+        if self.marked == 1:
+            self.damage //= 2
+            self.marked = 2
+
+
+
+
 
 class HarvesterAnt(Ant):
     """HarvesterAnt produces 1 additional food per turn for the colony."""
@@ -453,20 +467,29 @@ class ScubaThrower(ThrowerAnt):
 # END Problem 12
 
 # BEGIN Problem 13
-class QueenAnt(Ant):  # You should change this line
+class QueenAnt(ThrowerAnt):  # You should change this line
 # END Problem 13
     """The Queen of the colony. The game is over if a bee enters her place."""
 
     name = 'Queen'
     food_cost = 7
     # OVERRIDE CLASS ATTRIBUTES HERE
+    is_watersafe = True
+    number = 0
     # BEGIN Problem 13
-    implemented = False   # Change to True to view in the GUI
+    implemented = True  # Change to True to view in the GUI
     # END Problem 13
 
     def __init__(self, armor=1):
         # BEGIN Problem 13
         "*** YOUR CODE HERE ***"
+        if QueenAnt.number == 0:
+            QueenAnt.number = 1
+            self.number = 1
+            ScubaThrower.__init__(self,armor)
+        else:
+            self.number = 2
+            ScubaThrower.__init__(self,armor)
         # END Problem 13
 
     def action(self, gamestate):
@@ -477,6 +500,29 @@ class QueenAnt(Ant):  # You should change this line
         """
         # BEGIN Problem 13
         "*** YOUR CODE HERE ***"
+        def func(ant):
+            if ant.marked == 0:
+                if hasattr(ant,"damage"):
+                    ant.damage *= 2
+                    ant.marked = 1
+            else:
+                pass
+            
+        if self.number == 2:
+            self.reduce_armor(self.armor)
+        elif self.number == 1:
+            ScubaThrower.action(self,gamestate)
+            temp = self.place.exit
+            while temp != None:
+                if temp.ant != None: 
+                    # if (isinstance(temp.ant,BodyguardAnt) or isinstance(temp.ant,TankAnt)) and temp.ant.contained_ant != None:
+                    if issubclass(type(temp.ant),ants.ContainerAnt) and temp.ant.contained_ant != None:
+                        func(temp.ant.contained_ant)
+                    func(temp.ant)
+                temp = temp.exit
+
+
+
         # END Problem 13
 
     def reduce_armor(self, amount):
@@ -485,6 +531,16 @@ class QueenAnt(Ant):  # You should change this line
         """
         # BEGIN Problem 13
         "*** YOUR CODE HERE ***"
+        if self.number == 1:
+            if self.armor <= amount:
+                Insect.reduce_armor(self,amount)
+                bees_win()
+            else:
+                Insect.reduce_armor(self,amount)
+        else:
+            Insect.reduce_armor(self,amount)
+                
+
         # END Problem 13
 
 
