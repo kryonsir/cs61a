@@ -1,3 +1,4 @@
+
 def insert_into_all(item, nested_list):
     """Assuming that nested_list is a list of lists, return a new list
     consisting of all the lists in nested_list, but with item added to
@@ -45,16 +46,18 @@ def inc_subseqs(s):
     >>> sorted(seqs2)
     [[], [1], [1], [1, 1], [1, 1, 2], [1, 2], [1, 2], [2]]
     """
+    if not s:
+        return [[]]
     def subseq_helper(s, prev):
         if not s:
             return [[]]
         elif s[0] < prev:
-            return ____________________
+            return subseq_helper(s[1:],prev)
         else:
-            a = ______________________
-            b = ______________________
-            return insert_into_all(________, ______________) + ________________
-    return subseq_helper(____, ____)
+            a = subseq_helper(s[1:],prev)
+            b = subseq_helper(s[1:],s[0])
+            return insert_into_all(s[0],b) + a
+    return subseq_helper(s, s[0])
 
 
 def trade(first, second):
@@ -86,9 +89,9 @@ def trade(first, second):
     """
     m, n = 1, 1
 
-    equal_prefix = lambda: ______________________
-    while _______________________________:
-        if __________________:
+    equal_prefix = lambda: sum(first[:m]) == sum(second[:n])
+    while m <= len(first) and n <= len(second) and not equal_prefix():
+        if sum(first[:m]) < sum(second[:n]):
             m += 1
         else:
             n += 1
@@ -175,9 +178,9 @@ def num_trees(n):
     429
 
     """
-    if n==1:
+    if n==1 or n == 2:
         return 1
-    return (n-1)*(num_trees(n-1)-1 if n&(n-1)==0 and n>2 else num_trees(n-1))
+    return sum([num_trees(x)*num_trees(n-x) for x in range(1,n)])
 
 
 def make_advanced_counter_maker():
